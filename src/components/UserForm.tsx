@@ -20,6 +20,9 @@ const formSchema = z.object({
   username: z.string().min(2, {
     message: "Username must be at least 2 characters.",
   }),
+  description:z.string().min(2, {
+    message: "Username must be at least 2 characters.",
+  }),
 });
 
 export default function UserForm() {
@@ -27,36 +30,25 @@ export default function UserForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
+      description: ""
     },
   });
-
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-
-       const data = {
-      chat_id: '-4133902682', // Replace with your chat ID
-      text: `New username submitted: ${values.username}`,
+      const data = {
+         user: `${values.username}`,
+         description: `${values.description}`
     };
-    const telegramApiUrl = `https://api.telegram.org/7185412843:AAHYYNArTYyrIW_SHK0BmJWEHtUHzT71p9I/sendMessage?chat_id=${data.chat_id}&text=${data.text}`;
-
-    // Data for the POST request
- 
-  console.log(telegramApiUrl)
-    // Send the POST request using Axios
-    axios.post(telegramApiUrl,{
-      headers:{
-         'Content-Type': 'application/x-www-form-urlencoded', // Set Content-Type to JSON
-      }
-    })
+    const telegramApiUrl = `http://localhost:4200/telegram/send-message`;
+    axios.post(telegramApiUrl, data)
       .then(response => {
         console.log('Telegram message sent successfully:', response.data);
       })
       .catch(error => {
         console.error('Error sending Telegram message:', error);
       });
-    console.log(values);
-    setIsModalOpen(true); // Open the modal upon submission
+    setIsModalOpen(true); 
   }
 
   return (
@@ -64,16 +56,32 @@ export default function UserForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input placeholder="description" {...field} />
+              </FormControl>
+              {/* <FormDescription>
+                This is your public display name.
+              </FormDescription> */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+           <FormField
+          control={form.control}
           name="username"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="username" {...field} />
               </FormControl>
-              <FormDescription>
+              {/* <FormDescription>
                 This is your public display name.
-              </FormDescription>
+              </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
